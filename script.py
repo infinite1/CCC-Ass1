@@ -3,6 +3,7 @@ import json
 import os
 import time
 import heapq
+import pycountry
 
 def valid_file(filename):
     """Check if the input file is a json file"""
@@ -41,10 +42,10 @@ with open(filename) as data:
 
 
             langaugaes = content["doc"]["metadata"]["iso_language_code"]
-            langaugaes_name = langaugaes
+            langaugaes_name = pycountry.languages.get(alpha_2=langaugaes).name
             if langaugaes_name not in langaugae_table:
-                langaugae_table[langaugaes] = 0
-            langaugae_table[langaugaes] += 1
+                langaugae_table[langaugaes_name] = 0
+            langaugae_table[langaugaes_name] += 1
 
 
         except:
