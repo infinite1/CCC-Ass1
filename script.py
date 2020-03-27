@@ -23,6 +23,7 @@ filename = args.filename
 
 # record frequency of hashtags
 hashtags_table = {}
+langaugae_table = {}
 
 with open(filename) as data:
     for line in data:
@@ -37,7 +38,14 @@ with open(filename) as data:
                     if text not in hashtags_table:
                         hashtags_table[text] = 0
                     hashtags_table[text] += 1
-            print(content["doc"]["text"], content["doc"]["lang"])
+
+
+            langaugaes = content["doc"]["metadata"]["iso_language_code"]
+            langaugaes_name = langaugaes
+            if langaugaes_name not in langaugae_table:
+                langaugae_table[langaugaes] = 0
+            langaugae_table[langaugaes] += 1
+
 
         except:
             # skip lines that are not formatted correctly in json
@@ -45,7 +53,10 @@ with open(filename) as data:
             continue
 
 topTenHashtags = heapq.nlargest(10, hashtags_table.items(), key=lambda i: i[1])
-print(topTenHashtags)
+print("Top ten hashtags: ",topTenHashtags)
+
+topFiveLan = heapq.nlargest(5,langaugae_table.items(), key=lambda i: i[1])
+print("Top five languages: ",topFiveLan)
 
 # calculate exucation time
 duration = time.time() - start_time
