@@ -37,7 +37,7 @@ with open(filename) as data:
                     if text not in hashtags_table:
                         hashtags_table[text] = 0
                     hashtags_table[text] += 1
-            print(content["doc"]["text"], content["doc"]["lang"])
+            # print(content["doc"]["text"], content["doc"]["lang"])
 
         except:
             # skip lines that are not formatted correctly in json
