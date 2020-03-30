@@ -20,7 +20,6 @@ def valid_file(filename):
         raise argparse.ArgumentTypeError('file must have a json extension')
     return filename
 
-
 comm = MPI.COMM_WORLD
 size = comm.Get_size()
 rank = comm.Get_rank()
