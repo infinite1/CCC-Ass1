@@ -4,6 +4,12 @@ import os
 import time
 import heapq
 import pycountry
+import mpi4py.MPI as MPI
+# mpiexec -np 4 python3 script.py
+
+comm = MPI.COMM_WORLD
+comm_rank = comm.Get_rank()
+comm_size = comm.Get_size()
 
 def valid_file(filename):
     """Check if the input file is a json file"""
@@ -22,13 +28,14 @@ parser.add_argument('filename', type=valid_file,
 args = parser.parse_args()
 filename = args.filename
 
-# record frequency of hashtags
+# record frequency of hashtags and languages
 hashtags_table = {}
 langaugae_table = {}
-
+all_lines = 0
 with open(filename) as data:
     for line in data:
         line = line.strip()
+        all_lines +=1
         try:
             content = json.loads(line[0:len(line)-1])
 
@@ -59,6 +66,7 @@ print("Top ten hashtags: ",topTenHashtags)
 topFiveLan = heapq.nlargest(5,langaugae_table.items(), key=lambda i: i[1])
 print("Top five languages: ",topFiveLan)
 
+print("There are ",all_lines," lines in document.")
 # calculate exucation time
 duration = time.time() - start_time
 print("\nThe program uses {0:.2f} seconds".format(duration))
