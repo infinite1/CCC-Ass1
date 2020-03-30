@@ -3,6 +3,11 @@ import json
 import os
 import time
 import heapq
+from mpi4py import MPI
+from collections import Counter 
+
+# record start time
+start_time = time.time()
 
 def valid_file(filename):
     """Check if the input file is a json file"""
@@ -11,8 +16,9 @@ def valid_file(filename):
         raise argparse.ArgumentTypeError('file must have a json extension')
     return filename
 
-# record start time
-start_time = time.time()
+comm = MPI.COMM_WORLD
+size = comm.Get_size()
+rank = comm.Get_rank()
 
 # parse command line arguments
 parser = argparse.ArgumentParser("python3 script.py")
@@ -24,11 +30,17 @@ filename = args.filename
 # record frequency of hashtags
 hashtags_table = {}
 
+# update hashtags frequency table
 with open(filename) as data:
+    line_number = 0
     for line in data:
-        line = line.strip()
+        if rank != line_number % size:
+            line_number += 1
+            continue
+        line_number += 1
+        line = line.strip()	# remove trailing space
         try:
-            content = json.loads(line[0:len(line)-1])
+            content = json.loads(line[0:len(line)-1])	# remove trailing comma
 
             hashtags = content["doc"]["entities"]["hashtags"]
             if len(hashtags) > 0:
@@ -44,9 +56,36 @@ with open(filename) as data:
             # print("invalid json format")
             continue
 
-topTenHashtags = heapq.nlargest(10, hashtags_table.items(), key=lambda i: i[1])
-print(topTenHashtags)
+# if there is only one core used
+if size == 1:
+	# retrieve top ten most hashtags
+	topTenHashtags = heapq.nlargest(10, hashtags_table.items(), key=lambda i: i[1])
+	print(topTenHashtags)
 
-# calculate exucation time
-duration = time.time() - start_time
-print("\nThe program uses {0:.2f} seconds".format(duration))
+	# calculate exucation time
+	duration = time.time() - start_time
+	print("\nThe program uses {0:.2f} seconds".format(duration))
+
+	MPI.Finalize()
+
+	
+# if there are more than one core used, then gather data
+elif size > 1:
+	hashtags_table_array = comm.gather(hashtags_table)
+
+# if at root node, then collect parallelized data
+if rank == 0 and size > 1:
+	# merge parallelized hashtags into one dictionary
+	gather_data = {}
+	for dictionary in hashtags_table_array:
+		gather_data = dict(Counter(gather_data) + Counter(dictionary))
+
+	# retrieve top ten most hashtags
+	topTenHashtags = heapq.nlargest(10, gather_data.items(), key=lambda i: i[1])
+	print(topTenHashtags)
+
+	# calculate exucation time
+	duration = time.time() - start_time
+	print("\nThe program uses {0:.2f} seconds".format(duration))
+
+	MPI.Finalize()
