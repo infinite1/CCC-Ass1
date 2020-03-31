@@ -51,42 +51,6 @@ with open(filename) as data:
                         hashtags_table[text] = 0
                     hashtags_table[text] += 1
 
-                    # # count hashtags in retweets
-                    # retweet_count = content["doc"]["retweet_count"]
-                    # hashtags_table[text] += retweet_count
-
-            # # count quoted hashtags in retweet status
-            # if "retweeted_status" in content["doc"]:
-            # 	if "quoted_status" in content["doc"]["retweeted_status"]:
-            # 		quote_hashtags = content["doc"]["retweeted_status"]["quoted_status"]["entities"]["hashtags"]
-            # 		if len(quote_hashtags) > 0:
-		          #       for hashtag in quote_hashtags:
-		          #           text = "#" + hashtag["text"]
-		          #           if text not in hashtags_table:
-		          #               hashtags_table[text] = 0
-		          #           hashtags_table[text] += 1
-
-		          #           # count hashtags in retweets
-		          #           retweet_count = content["doc"]["retweeted_status"]["quoted_status"]["entities"]["retweet_count"]
-		          #           hashtags_table[text] += retweet_count
-
-
-            # # count quoted hashtags in tweet text
-            # if "quoted_status" in content["doc"]:
-	           #  quote_hashtags = content["doc"]["quoted_status"]["entities"]["hashtags"]
-	           #  if len(quote_hashtags) > 0:
-	           #      for hashtag in quote_hashtags:
-	           #          text = "#" + hashtag["text"]
-	           #          if text not in hashtags_table:
-	           #              hashtags_table[text] = 0
-	           #          hashtags_table[text] += 1
-
-	           #          # count hashtags in retweets
-	           #          retweet_count = content["doc"]["retweeted_status"]["quoted_status"]["entities"]["retweet_count"]
-	           #          hashtags_table[text] += retweet_count
-	                    
-            # print(content["doc"]["text"], content["doc"]["lang"])
-
         except:
             # skip lines that are not formatted correctly in json
             # print("invalid json format")
