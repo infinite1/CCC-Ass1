@@ -106,7 +106,7 @@ if rank == 0 and size > 1:
     print(topTenHashtags)
 
     # retrieve top ten most languages
-    topFiveLan = heapq.nlargest(5, gather_language.items(), key=lambda i: i[1])
+    topFiveLan = heapq.nlargest(10, gather_language.items(), key=lambda i: i[1])
     print("Top five languages: ", topFiveLan)
 
 
