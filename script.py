@@ -3,7 +3,7 @@ import json
 import os
 import time
 import heapq
-import pycountry
+import languageName
 from mpi4py import MPI
 from collections import Counter
 
@@ -34,7 +34,6 @@ filename = args.filename
 # record frequency of hashtags and languages
 hashtags_table = {}
 langaugae_table = {}
-all_lines = 0
 
 # update hashtags frequency table
 with open(filename) as data:
@@ -57,7 +56,7 @@ with open(filename) as data:
                     hashtags_table[text] += 1
 
             langaugaes = content["doc"]["metadata"]["iso_language_code"]
-            langaugaes_name = pycountry.languages.get(alpha_2=langaugaes).name
+            langaugaes_name = languageName.get_name(langaugaes)
             if langaugaes_name not in langaugae_table:
                 langaugae_table[langaugaes_name] = 0
             langaugae_table[langaugaes_name] += 1
