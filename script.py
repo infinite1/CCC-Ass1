@@ -73,8 +73,8 @@ if size == 1:
     topTenHashtags = heapq.nlargest(10, hashtags_table.items(), key=lambda i: i[1])
     print("Top ten hashtags: ",topTenHashtags)
     # retrieve top ten most languages
-    topFiveLan = heapq.nlargest(5, langaugae_table.items(), key=lambda i: i[1])
-    print("Top five languages: ", topFiveLan)
+    topFiveLan = heapq.nlargest(10, langaugae_table.items(), key=lambda i: i[1])
+    print("Top ten languages: ", topFiveLan)
 
     # calculate exucation time
     duration = time.time() - start_time
