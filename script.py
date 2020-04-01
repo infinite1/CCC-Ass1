@@ -7,8 +7,6 @@ import languageName
 from mpi4py import MPI
 from collections import Counter
 
-# mpiexec -np 4 python3 script.py
-
 # record start time
 start_time = time.time()
 
@@ -72,10 +70,10 @@ with open(filename) as data:
 if size == 1:
     # retrieve top ten most hashtags
     topTenHashtags = heapq.nlargest(10, hashtags_table.items(), key=lambda i: i[1])
-    print("Top ten hashtags: ",topTenHashtags)
+    print("\nTop ten hashtags: ",topTenHashtags)
     # retrieve top ten most languages
-    topFiveLan = heapq.nlargest(10, langaugae_table.items(), key=lambda i: i[1])
-    print("Top ten languages: ", topFiveLan)
+    topTenLang = heapq.nlargest(10, langaugae_table.items(), key=lambda i: i[1])
+    print("\nTop ten languages: ", topTenLang)
 
     # calculate exucation time
     duration = time.time() - start_time
@@ -104,11 +102,11 @@ if rank == 0 and size > 1:
 
     # retrieve top ten most hashtags
     topTenHashtags = heapq.nlargest(10, gather_tags.items(), key=lambda i: i[1])
-    print(topTenHashtags)
+    print("\nTop ten hashtags: ",topTenHashtags)
 
     # retrieve top ten most languages
-    topFiveLan = heapq.nlargest(10, gather_language.items(), key=lambda i: i[1])
-    print("Top five languages: ", topFiveLan)
+    topTenLang = heapq.nlargest(10, gather_language.items(), key=lambda i: i[1])
+    print("\nTop ten languages: ", topTenLang)
 
 
     # calculate exucation time
