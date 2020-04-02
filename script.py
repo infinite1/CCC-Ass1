@@ -18,6 +18,7 @@ def valid_file(filename):
         raise argparse.ArgumentTypeError('file must have a json extension')
     return filename
 
+# initialize MPI
 comm = MPI.COMM_WORLD
 size = comm.Get_size()
 rank = comm.Get_rank()
@@ -43,7 +44,8 @@ with open(filename) as data:
         line_number += 1
         line = line.strip()  # remove trailing space
         try:
-            content = json.loads(line[0:len(line) - 1])  # remove trailing comma
+            # remove trailing comma
+            content = json.loads(line[0:len(line) - 1])
 
             # count hashtags in tweet text
             hashtags = content["doc"]["entities"]["hashtags"]
@@ -54,12 +56,12 @@ with open(filename) as data:
                         hashtags_table[text] = 0
                     hashtags_table[text] += 1
 
+            # count languages in tweet text
             langaugaes = content["doc"]["metadata"]["iso_language_code"]
             langaugaes_name = languageName.get_name(langaugaes)
             if langaugaes_name not in langaugae_table:
                 langaugae_table[langaugaes_name] = 0
             langaugae_table[langaugaes_name] += 1
-
 
         except:
             # skip lines that are not formatted correctly in json
@@ -69,10 +71,12 @@ with open(filename) as data:
 # if there is only one core used
 if size == 1:
     # retrieve top ten most hashtags
-    topTenHashtags = heapq.nlargest(10, hashtags_table.items(), key=lambda i: i[1])
-    print("\nTop ten hashtags: ",topTenHashtags)
+    topTenHashtags = heapq.nlargest(
+        10, hashtags_table.items(), key=lambda i: i[1])
+    print("\nTop ten hashtags: ", topTenHashtags)
     # retrieve top ten most languages
-    topTenLang = heapq.nlargest(10, langaugae_table.items(), key=lambda i: i[1])
+    topTenLang = heapq.nlargest(
+        10, langaugae_table.items(), key=lambda i: i[1])
     print("\nTop ten languages: ", topTenLang)
 
     # calculate exucation time
@@ -89,25 +93,24 @@ elif size > 1:
 
 # if at root node, then collect parallelized data
 if rank == 0 and size > 1:
-    # merge parallelized hashtags into one dictionary
+    # merge parallelized hashtags&languages into corresponding dictionary
     gather_tags = {}
     gather_language = {}
-
     for tag_dictionary in hashtags_table_array:
         gather_tags = dict(Counter(gather_tags) + Counter(tag_dictionary))
     for language_dictionary in languages_table_array:
-        gather_language = dict(Counter(gather_language) + Counter(language_dictionary))
-
-
+        gather_language = dict(Counter(gather_language) +
+                               Counter(language_dictionary))
 
     # retrieve top ten most hashtags
-    topTenHashtags = heapq.nlargest(10, gather_tags.items(), key=lambda i: i[1])
-    print("\nTop ten hashtags: ",topTenHashtags)
+    topTenHashtags = heapq.nlargest(
+        10, gather_tags.items(), key=lambda i: i[1])
+    print("\nTop ten hashtags: ", topTenHashtags)
 
     # retrieve top ten most languages
-    topTenLang = heapq.nlargest(10, gather_language.items(), key=lambda i: i[1])
+    topTenLang = heapq.nlargest(
+        10, gather_language.items(), key=lambda i: i[1])
     print("\nTop ten languages: ", topTenLang)
-
 
     # calculate exucation time
     duration = time.time() - start_time
