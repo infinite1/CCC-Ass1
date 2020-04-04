@@ -2,7 +2,6 @@ import argparse
 import json
 import os
 import time
-import heapq
 import languageName
 from mpi4py import MPI
 from collections import Counter
@@ -31,8 +30,8 @@ args = parser.parse_args()
 filename = args.filename
 
 # record frequency of hashtags and languages
-hashtags_table = {}
-langaugae_table = {}
+hashtags_table = Counter()
+langaugae_table = Counter()
 
 # update hashtags frequency table
 with open(filename) as data:
@@ -71,12 +70,10 @@ with open(filename) as data:
 # if there is only one core used
 if size == 1:
     # retrieve top ten most hashtags
-    topTenHashtags = heapq.nlargest(
-        10, hashtags_table.items(), key=lambda i: i[1])
+    topTenHashtags = hashtags_table.most_common(10)
     print("\nTop ten hashtags: ", topTenHashtags)
     # retrieve top ten most languages
-    topTenLang = heapq.nlargest(
-        10, langaugae_table.items(), key=lambda i: i[1])
+    topTenLang = langaugae_table.most_common(10)
     print("\nTop ten languages: ", topTenLang)
 
     # calculate exucation time
@@ -94,22 +91,20 @@ elif size > 1:
 # if at root node, then collect parallelized data
 if rank == 0 and size > 1:
     # merge parallelized hashtags&languages into corresponding dictionary
-    gather_tags = {}
-    gather_language = {}
+    gather_tags = Counter()
+    gather_language = Counter()
     for tag_dictionary in hashtags_table_array:
-        gather_tags = dict(Counter(gather_tags) + Counter(tag_dictionary))
+        gather_tags = Counter(gather_tags) + Counter(tag_dictionary)
     for language_dictionary in languages_table_array:
-        gather_language = dict(Counter(gather_language) +
-                               Counter(language_dictionary))
+        gather_language = Counter(gather_language) + \
+            Counter(language_dictionary)
 
     # retrieve top ten most hashtags
-    topTenHashtags = heapq.nlargest(
-        10, gather_tags.items(), key=lambda i: i[1])
+    topTenHashtags = gather_tags.most_common(10)
     print("\nTop ten hashtags: ", topTenHashtags)
 
     # retrieve top ten most languages
-    topTenLang = heapq.nlargest(
-        10, gather_language.items(), key=lambda i: i[1])
+    topTenLang = gather_language.most_common(10)
     print("\nTop ten languages: ", topTenLang)
 
     # calculate exucation time
